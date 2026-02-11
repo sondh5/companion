@@ -240,7 +240,15 @@ export class CliLauncher {
       "--verbose",
     ];
 
-    if (options.model) {
+    // Skip --model when using Bedrock/Vertex — these providers use their own
+    // model routing (ARNs, endpoint IDs) and passing a plain model name like
+    // "claude-opus-4-6" causes a 400 "invalid model identifier" error.
+    // See: https://github.com/The-Vibe-Company/companion/issues/58
+    const mergedEnv = { ...process.env, ...options.env };
+    const usesBedrock = mergedEnv.CLAUDE_CODE_USE_BEDROCK === "1";
+    const usesVertex = mergedEnv.CLAUDE_CODE_USE_VERTEX === "1";
+
+    if (options.model && !usesBedrock && !usesVertex) {
       args.push("--model", options.model);
     }
     if (options.permissionMode) {

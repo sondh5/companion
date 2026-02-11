@@ -148,6 +148,28 @@ describe("launch", () => {
     expect(cmdAndArgs[modelIdx + 1]).toBe("claude-opus-4-20250514");
   });
 
+  it("skips --model when CLAUDE_CODE_USE_BEDROCK=1 is in env", () => {
+    launcher.launch({
+      model: "claude-opus-4-6",
+      cwd: "/tmp",
+      env: { CLAUDE_CODE_USE_BEDROCK: "1" },
+    });
+
+    const [cmdAndArgs] = mockSpawn.mock.calls[0];
+    expect(cmdAndArgs).not.toContain("--model");
+  });
+
+  it("skips --model when CLAUDE_CODE_USE_VERTEX=1 is in env", () => {
+    launcher.launch({
+      model: "claude-opus-4-6",
+      cwd: "/tmp",
+      env: { CLAUDE_CODE_USE_VERTEX: "1" },
+    });
+
+    const [cmdAndArgs] = mockSpawn.mock.calls[0];
+    expect(cmdAndArgs).not.toContain("--model");
+  });
+
   it("passes --permission-mode when provided", () => {
     launcher.launch({ permissionMode: "bypassPermissions", cwd: "/tmp" });
 
